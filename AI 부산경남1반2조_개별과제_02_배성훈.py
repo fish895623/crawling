@@ -6,12 +6,15 @@
 # - 워드 클라우드 만들기
 # - 수집한 데이터에 대한 형태소 분석
 
+import gc
+import re
+
 # %%
 from json import JSONDecodeError
-import re
-import requests
+from multiprocessing import Pool
+
 import pandas as pd
-import gc
+import requests
 
 gc.set_threshold(1000, 100, 100)
 # %%[markdown]
@@ -23,7 +26,7 @@ def clean_text(inputString: str):
 
 
 # %%
-def gendate(url: str):
+def gendate(url: str, merchantNo: str, originProductNo: str):
     DATA = {
         "id": [],
         "reviewContent": [],
@@ -36,7 +39,7 @@ def gendate(url: str):
         try:
             PAGE += 1
             reviews = requests.get(
-                f"https://brand.naver.com/n/v1/reviews/paged-reviews?page={PAGE}&pageSize=30&merchantNo=500030812&originProductNo=5154861564&sortType=REVIEW_RANKING"
+                f"https://brand.naver.com/n/v1/reviews/paged-reviews?page={PAGE}&pageSize=30&merchantNo={merchantNo}&originProductNo={originProductNo}&sortType=REVIEW_RANKING"
             ).json()
             reviews["contents"]
             for review in reviews["contents"]:
@@ -52,8 +55,22 @@ def gendate(url: str):
     df = pd.DataFrame(DATA)
 
     # %%
-    df.to_csv(path_or_buf="5174410691.csv", encoding="utf-8")
+    df.to_csv(path_or_buf=f"{url}.csv", encoding="utf-8")
 
 
 # %%
-gendate("5174410691")
+if "__name__" == "__main__":
+    pool = Pool()
+    a = [
+        ["5174410691", "500030812", "5154861564"],
+        ["474589013", "500196931", "474589013"],
+        ["2146095417", "500031227", "2145160507"],
+        ["5088641128", "500176670", "5070282749"],
+        ["3327518275", "500176670", "3322560121"],
+        ["3917009354", "500176670", "3910143421"],
+        ["5754878048", "500176670", "5729053371"],
+    ]
+    for i in a:
+        run = pool.map(gendate, i)
+    pool.close()
+    pool.join()
