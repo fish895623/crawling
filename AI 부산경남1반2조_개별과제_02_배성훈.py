@@ -59,8 +59,7 @@ def gendate(url: str, merchantNo: str, originProductNo: str):
 
 
 # %%
-if "__name__" == "__main__":
-    pool = Pool()
+if __name__ == "__main__":
     a = [
         ["5174410691", "500030812", "5154861564"],
         ["474589013", "500196931", "474589013"],
@@ -71,6 +70,4 @@ if "__name__" == "__main__":
         ["5754878048", "500176670", "5729053371"],
     ]
     for i in a:
-        run = pool.map(gendate, i)
-    pool.close()
-    pool.join()
+        gendate(i[0], i[1], i[2])
